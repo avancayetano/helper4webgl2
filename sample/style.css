@@ -1,0 +1,29 @@
+
+#main-container {
+	height: 100vh;
+	width: 100vw;
+	position: absolute;
+	padding: 0px;
+	margin: 0px;
+	left: 0px;
+	top: 0px;
+}
+
+#main-canvas {
+	height: 100%;
+	width: 100%;
+	background-color: black;
+	position: absolute;
+	padding: 0px;
+	margin: 0px;
+	left: 0px;
+	top: 0px;
+}
+
+.info-log {
+	color: white;
+	font-size: 14px;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+}
