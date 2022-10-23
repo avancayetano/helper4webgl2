@@ -40,7 +40,7 @@ The above matrix transforms the vertex $(x_i, y_i, z_i, 1)$ in 3D (4D) coordinat
 ## Todo
 * Bezier curves
 * Rendering batches
-
+* Camera matrix
 
 
 
