@@ -4,20 +4,21 @@ import Engine from "../engine.js";
 
 var vShaderSource = `#version 300 es
 
-in vec4 vertex_pos;
+in vec4 vertexPos;
 in vec3 orientation;
 
 out float intensity;
 
 uniform mat4 projection;
+uniform mat4 camera;
 uniform mat4 model;
 uniform mat4 local;
 
 uniform vec4 lightDir;
 
 void main(){
-	gl_Position = projection * model * local * vertex_pos;
-
+	gl_Position = projection * inverse(camera) * model * local * vertexPos;
+	
 	intensity = dot(normalize(local * vec4(orientation, 1.0)), normalize(lightDir));
 	intensity = (-intensity + 1.0) / 2.0;
 	intensity = intensity * ((-gl_Position.z + 1.0)/2.0);
@@ -111,6 +112,7 @@ class Shape{
 }
 
 
+
 function Main(){
 	var self = this;
 
@@ -123,14 +125,16 @@ function Main(){
 	gl.enable(gl.CULL_FACE);
 
 
-	var vertexPositionLoc = gl.getAttribLocation(program, "vertex_pos");
+	var vertexPositionLoc = gl.getAttribLocation(program, "vertexPos");
 	var orientationLoc = gl.getAttribLocation(program, "orientation");
 
 	var projectionMatLoc = gl.getUniformLocation(program, "projection");
+	var cameraMatLoc = gl.getUniformLocation(program, "camera");
 	var modelMatLoc = gl.getUniformLocation(program, "model");
 	var localMatLoc = gl.getUniformLocation(program, "local");
 	
 	var lightDirLoc = gl.getUniformLocation(program, "lightDir");
+
 
 	var fov = Math.PI / 2;
 	var nearZ = (canvas.height/2) / (Math.tan(fov/2));
@@ -139,6 +143,9 @@ function Main(){
 
 	var projectionMat = engine.projectionMat(canvas.width, canvas.height, nearZ, farZ);
 	engine.setUniformMat(gl, projectionMatLoc, projectionMat, true);
+
+	var cameraMat = engine.identityMat();
+	engine.setUniformMat(gl, cameraMatLoc, cameraMat, true);
 
 	var vertices = [
 		[[-2000], [-2000], [-2000], [1]],
@@ -201,13 +208,6 @@ function Main(){
 	gl.vertexAttribPointer(orientationLoc, 3, gl.FLOAT, false, 0, 0);
 
 
-	var mouse = [0, 0];
-	canvas.addEventListener("mousemove", (event) => {
-		event.preventDefault();
-		mouse[0] = event.clientX;
-		mouse[1] = event.clientY;
-	});
-
 	self.gameLoop = function(timestamp){
 
 		gl.clearColor(0, 0, 0, 0);
@@ -230,6 +230,7 @@ function Main(){
 			engine.multiplyMat(rotateMatY, engine.multiplyMat(rotateMatZ, rotateMatX))
 		];
 
+
 		for (var i in shapes){
 			var shape = shapes[i];
 			// newCenter = translationMat * center
@@ -244,8 +245,8 @@ function Main(){
 			engine.setUniformMat(gl, modelMatLoc, engine.modelMat(shape.center), true);
 
 
-			engine.setUniformVec(gl, lightDirLoc, shape.center, true);
 
+			engine.setUniformVec(gl, lightDirLoc, shape.center, true);
 
 			shape.drawFill(gl, positionBuffer, orientationBuffer);
 

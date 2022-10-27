@@ -201,6 +201,10 @@ export default class Engine{
 		return this.translationMat(center[0], center[1], center[2]);
 	}
 
+	cameraMat(camTransformation){
+		return this.inverseMat(camTransformation);
+	}
+
 	translationMat(tx, ty, tz){
 		return [
 			[1, 0, 0, tx],
